@@ -1,3 +1,3 @@
 # IA Chess Game Solver
 
-Program that allows the computer to play final chess game boards, implementing minimax algorithm.
+Program that allows the computer to play chess game finals, implementing minimax algorithm.
