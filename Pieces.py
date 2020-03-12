@@ -1,4 +1,5 @@
 import pyglet
+import time
 
 spriteimage = pyglet.resource.image('resources/spritesheet.png')
 spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
@@ -11,14 +12,17 @@ class Piece(object):
     white = True
     piecesprite = None
     captured = False
+    xMovement=0
+    yMovement=0
 
     def __init__(self, type):
         self.white = type
         self.captured = False
+        pyglet.clock.schedule_interval(self.updatePosition,1/100)
 
     def MakeMove(self, board, move, king):
-        x = self.piecesprite.x // 75
-        y = self.piecesprite.y // 75
+        x = int(self.piecesprite.x // 75)
+        y = int(self.piecesprite.y // 75)
         temp = board[y][x]
         temp2 = board[move[0]][move[1]]
         board[move[0]][move[1]] = board[y][x]
@@ -31,6 +35,44 @@ class Piece(object):
         self.piecesprite.x = x * 75
         self.piecesprite.y = y * 75
         return check
+    
+    def updatePosition(self,dt):
+        stepSize=15
+        if(self.yMovement>0):
+            if(self.yMovement <= stepSize):
+                self.piecesprite.y += self.yMovement
+                self.yMovement = 0
+            else:
+                self.piecesprite.y += stepSize
+                self.yMovement -= stepSize
+        if(self.yMovement<0):
+            if(self.yMovement >= -stepSize):
+                self.piecesprite.y += self.yMovement
+                self.yMovement = 0
+            else:
+                self.piecesprite.y -= stepSize
+                self.yMovement += stepSize
+        if(self.xMovement>0):
+            if(self.xMovement <= stepSize):
+                self.piecesprite.x += self.xMovement
+                self.xMovement = 0
+            else:
+                self.piecesprite.x += stepSize
+                self.xMovement -= stepSize
+        if(self.xMovement<0):
+            if(self.xMovement >= -stepSize):
+                self.piecesprite.x += self.xMovement
+                self.xMovement = 0
+            else:
+                self.piecesprite.x -= stepSize
+                self.xMovement += stepSize
+
+   
+    
+
+    
+         
+        
 
     def GetValidMoves(self, board, king):
         ListOfMoves = self.GetThreatSquares(board)
@@ -41,11 +83,19 @@ class Piece(object):
                 ValidMoves.append(move)
         return ValidMoves
 
+
+ 
     def ChangeLocation(self, x, y, board):
-        # self.x = x
-        # self.y = y
-        self.piecesprite.x = x * 75
-        self.piecesprite.y = y * 75
+        endX = x*75
+        endY= y*75
+        startX= self.piecesprite.x
+        startY = self.piecesprite.y
+        self.xMovement = endX - startX
+        self.yMovement = endY - startY
+
+        
+        
+  
 
     def Draw(self):
         self.piecesprite.draw()
@@ -61,8 +111,8 @@ class Pawn(Piece):
         self.piecesprite = pyglet.sprite.Sprite(self.pieceimage, x * 75, y * 75)
 
     def GetThreatSquares(self, board):
-        x = self.piecesprite.x // 75
-        y = self.piecesprite.y // 75
+        x = int(self.piecesprite.x // 75)
+        y = int(self.piecesprite.y // 75)
         ListOfMoves = []
         if self.white and y < 7:
             if board[y + 1][x] is None:
@@ -96,13 +146,12 @@ class Rook(Piece):
         self.moved = False
 
     def ChangeLocation(self, x, y, board):
-        self.piecesprite.x = x * 75
-        self.piecesprite.y = y * 75
+        Piece.ChangeLocation(self,x, y, board)
         self.moved = True
 
     def GetThreatSquares(self, board):
-        x = self.piecesprite.x // 75
-        y = self.piecesprite.y // 75
+        x = int(self.piecesprite.x // 75)
+        y = int(self.piecesprite.y // 75)
         ListOfMoves = []
         if y > 0:
             for i in range(y - 1, -1, -1):
@@ -145,8 +194,8 @@ class Knight(Piece):
         self.piecesprite = pyglet.sprite.Sprite(self.pieceimage, x * 75, y * 75)
 
     def GetThreatSquares(self, board):
-        x = self.piecesprite.x // 75
-        y = self.piecesprite.y // 75
+        x = int(self.piecesprite.x // 75)
+        y = int(self.piecesprite.y // 75)
         ListOfMoves = []
         try:
             if board[y + 2][x + 1] is None or self.white != board[y + 2][x + 1].white:
@@ -195,8 +244,8 @@ class Bishop(Piece):
         self.piecesprite = pyglet.sprite.Sprite(self.pieceimage, x * 75, y * 75)
 
     def GetThreatSquares(self, board):
-        x = self.piecesprite.x // 75
-        y = self.piecesprite.y // 75
+        x = int(self.piecesprite.x // 75)
+        y = int(self.piecesprite.y // 75)
         ListOfMoves = []
         for i in range(1, 8):
             if y-i < 0 or x-i < 0:
@@ -250,8 +299,8 @@ class Queen(Piece):
         self.piecesprite = pyglet.sprite.Sprite(self.pieceimage, x * 75, y * 75)
 
     def GetThreatSquares(self, board):
-        x = self.piecesprite.x // 75
-        y = self.piecesprite.y // 75
+        x = int(self.piecesprite.x // 75)
+        y = int(self.piecesprite.y // 75)
         ListOfMoves = []
         if y > 0:
             for i in range(y - 1, -1, -1):
@@ -348,8 +397,7 @@ class King(Piece):
             board[y][0] = None
             board[y][2] = self
             board[y][4] = None
-        self.piecesprite.x = x * 75
-        self.piecesprite.y = y * 75
+        Piece.ChangeLocation(self,x, y, board)
         self.danger.x = x * 75
         self.danger.y = y * 75
         self.moved = True
