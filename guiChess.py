@@ -1,13 +1,17 @@
 import pyglet
 from pyglet.window import mouse
 
+import Pieces as p
+
 from pieces.piece import *
 from pieces.rook import Rook
 from pieces.bishop import Bishop
 from pieces.knight import Knight
 from pieces.queen import Queen
-from pieces.king import King
+from pieces.king import *
 from pieces.pawn import Pawn
+from chessPiecesReader import ChessPiecesReader
+
 
 
 class Chess(pyglet.window.Window):
@@ -23,25 +27,21 @@ class Chess(pyglet.window.Window):
     spriteimage = pyglet.resource.image('resources/spritesheet.png')
     spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
 
+
     def __init__(self):
-        super(Chess, self).__init__(600, 600,
+        super(Chess, self).__init__(1000, 600,
                                     resizable=False,
                                     caption='Chess',
                                     config=pyglet.gl.Config(double_buffer=True),
                                     vsync=False)
-        self.wKing = King(4, 0)
-        self.bKing = King(4, 7, False)
-        self.board = [[Rook(0, 0), Knight(1, 0), Bishop(2, 0), Queen(3, 0), self.wKing, Bishop(5, 0),
-                       Knight(6, 0), Rook(7,0)],
-                      [Pawn(i, 1) for i in range(8)],
-                      [None for i in range(8)],
-                      [None for i in range(8)],
-                      [None for i in range(8)],
-                      [None for i in range(8)],
-                      [Pawn(i, 6, False) for i in range(8)],
-                      [Rook(0, 7, False), Knight(1, 7, False), Bishop(2, 7, False), Queen(3, 7, False),
-                       self.bKing, Bishop(5, 7, False), Knight(6, 7, False), Rook(7, 7, False)]]
+        result = ChessPiecesReader().readFile()
+
+        self.wKing = result[1]
+        self.bKing = result[2]
+        self.board = result[0]
+
         self.validsprites = []
+
         for i in range(8):
             rowsprites = []
             for j in range(8):
@@ -59,12 +59,15 @@ class Chess(pyglet.window.Window):
         self.bKnight = pyglet.sprite.Sprite(self.spritesheet[3], 393.75, 225)
 
 
+
+
     def on_draw(self):
         self.clear()
         self.chessboard.blit(0, 0)
         for i in range(8):
             for j in range(8):
-                if self.board[i][j] is not None: self.board[i][j].Draw()
+                if self.board[i][j] is not None:
+                    self.board[i][j].Draw()
                 self.validsprites[i][j].draw()
         if self.promotion:
             self.promoImg.blit(100, 200)
@@ -80,17 +83,18 @@ class Chess(pyglet.window.Window):
                 self.wKnight.draw()
 
     def on_mouse_press(self, x, y, button, modifiers):
+        print(x,y,button,modifiers)
         if self.promotion:
             if button == mouse.LEFT:
                 if 225 < y < 300:
                     if 131.25 < x < 206.25:
-                        self.board[self.promoPawn[0]][self.promoPawn[1]] = Queen(self.promoPawn[1], self.promoPawn[0], not self.move)
+                        self.board[self.promoPawn[0]][self.promoPawn[1]] = p.Queen(self.promoPawn[1], self.promoPawn[0], not self.move)
                     elif 218.75 < x < 293.75:
-                        self.board[self.promoPawn[0]][self.promoPawn[1]] = Rook(self.promoPawn[1], self.promoPawn[0], not self.move)
+                        self.board[self.promoPawn[0]][self.promoPawn[1]] = p.Rook(self.promoPawn[1], self.promoPawn[0], not self.move)
                     elif 306.25 < x < 381.25:
-                        self.board[self.promoPawn[0]][self.promoPawn[1]] = Bishop(self.promoPawn[1], self.promoPawn[0], not self.move)
+                        self.board[self.promoPawn[0]][self.promoPawn[1]] = p.Bishop(self.promoPawn[1], self.promoPawn[0], not self.move)
                     elif 393.75 < x < 468.75:
-                        self.board[self.promoPawn[0]][self.promoPawn[1]] = Knight(self.promoPawn[1], self.promoPawn[0], not self.move)
+                        self.board[self.promoPawn[0]][self.promoPawn[1]] = p.Knight(self.promoPawn[1], self.promoPawn[0], not self.move)
                 self.promoPawn = (-1, -1)
                 self.promotion = False
                 if not self.move:
@@ -129,6 +133,7 @@ class Chess(pyglet.window.Window):
                         else:
                             for move in ValidMoves:
                                 self.validsprites[move[0]][move[1]].visible = True
+                        print(ValidMoves)
                 elif self.board[boardY][boardX] is not None and self.move == self.board[boardY][boardX].white:
                     for row in self.validsprites:
                         for sprite in row:
@@ -147,7 +152,7 @@ class Chess(pyglet.window.Window):
                     if self.validsprites[boardY][boardX].visible:
                         self.board[boardY][boardX] = self.board[self.currentPos[0]][self.currentPos[1]]
                         self.board[self.currentPos[0]][self.currentPos[1]].ChangeLocation(boardX, boardY, self.board)
-                        if type(self.board[self.currentPos[0]][self.currentPos[1]]) is Pawn and (boardY == 0 or boardY == 7):
+                        if type(self.board[self.currentPos[0]][self.currentPos[1]]) is p.Pawn and (boardY == 0 or boardY == 7):
                             self.promotion = True
                             self.promoPawn = (boardY, boardX)
                         self.board[self.currentPos[0]][self.currentPos[1]] = None
