@@ -1,8 +1,9 @@
-from .piece import *
+from .rook import *
 
 class King(Piece):
     def __init__(self, x, y, type=True):
         super(King, self).__init__(type)
+        self.ptype = 'king'
         if self.white:
             self.pieceimage = spritesheet[WHITE_KING]
         else:

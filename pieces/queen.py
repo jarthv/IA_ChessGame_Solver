@@ -3,6 +3,7 @@ from .piece import *
 class Queen(Piece):
     def __init__(self, x, y, type=True):
         super(Queen, self).__init__(type)
+        self.ptype = 'queen'
         if self.white:
             self.pieceimage = spritesheet[WHITE_QUEEN]
         else:

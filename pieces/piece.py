@@ -1,5 +1,4 @@
 import pyglet
-import time
 
 spriteimage = pyglet.resource.image('resources/spritesheet.png')
 spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
@@ -18,7 +17,14 @@ class Piece(object):
     def __init__(self, type):
         self.white = type
         self.captured = False
+        self.ptype=''
         pyglet.clock.schedule_interval(self.updatePosition,1/100)
+
+    def getPtype(self):
+        if self.white:
+            return 'white ' + self.ptype
+        else:
+            return 'black ' + self.ptype
 
     def MakeMove(self, board, move, king):
         x = int(self.piecesprite.x // 75)
@@ -63,30 +69,22 @@ class Piece(object):
                 self.piecesprite.x -= stepSize
                 self.xMovement += stepSize
 
-
-
     def GetValidMoves(self, board, king):
         ListOfMoves = self.GetThreatSquares(board)
         ValidMoves = []
         for move in ListOfMoves:
-            # tempboard = deepcopy(board)                                         # Can be optimized. Edit MakeMove function to simply revert any changes
+            # tempboard = deepcopy(board)       # Can be optimized. Edit MakeMove function to simply revert any changes
             if not self.MakeMove(board, move, king):
                 ValidMoves.append(move)
         return ValidMoves
 
-
- 
     def ChangeLocation(self, x, y, board):
         endX = x*75
-        endY= y*75
+        endY = y*75
         startX= self.piecesprite.x
         startY = self.piecesprite.y
         self.xMovement = endX - startX
         self.yMovement = endY - startY
 
-        
-  
-
     def Draw(self):
         self.piecesprite.draw()
-

@@ -4,6 +4,7 @@ from .piece import *
 class Pawn(Piece):
     def __init__(self, x, y, type=True):
         super(Pawn, self).__init__(type)
+        self.ptype = 'pawn'
         if self.white:
             self.pieceimage = spritesheet[WHITE_PAWN]
         else:

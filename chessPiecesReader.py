@@ -1,9 +1,9 @@
-
 from pieces.bishop import Bishop
 from pieces.knight import Knight
 from pieces.queen import Queen
-from pieces.king import *
+from pieces.king import King
 from pieces.pawn import Pawn
+from pieces.rook import Rook
 
 
 class ChessPiecesReader(object):
@@ -50,7 +50,6 @@ class ChessPiecesReader(object):
         wKing = None
         bKing = None
         board =[[None for i in range(8)] for i in range (8)]
-
         if not textPositions:
             return self.__standartBoard()
         else:
@@ -64,15 +63,10 @@ class ChessPiecesReader(object):
                     else:
                         bKing = p
                 board[y][x] = p
-                print(board)
-
             return [board, wKing, bKing]
+
+
 
     def readFile(self,filename=""):
         game1 = ["BTf1", "NTe7", "BAd5", "BRd6", "NRd8"]
         return self.__formatToBoard(game1)
-
-
-
-
-

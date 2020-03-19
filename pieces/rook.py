@@ -4,6 +4,7 @@ from .piece import *
 class Rook(Piece):
     def __init__(self, x, y, type=True):
         super(Rook, self).__init__(type)
+        self.ptype = 'rook'
         if self.white:
             self.pieceimage = spritesheet[WHITE_ROOK]
         else:

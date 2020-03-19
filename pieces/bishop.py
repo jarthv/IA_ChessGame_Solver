@@ -3,6 +3,7 @@ from .piece import *
 class Bishop(Piece):
     def __init__(self, x, y, type=True):
         super(Bishop, self).__init__(type)
+        self.ptype = 'bishop'
         if self.white:
             self.pieceimage = spritesheet[WHITE_BISHOP]
         else:
@@ -53,4 +54,3 @@ class Bishop(Piece):
             except IndexError:
                 break
         return ListOfMoves
-
