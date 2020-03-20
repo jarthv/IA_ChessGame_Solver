@@ -28,13 +28,14 @@ class Chess(pyglet.window.Window):
     spriteimage = pyglet.resource.image('resources/spritesheet.png')
     spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
 
-    def __init__(self):
+    def __init__(self, path):
         super(Chess, self).__init__(1000, 625,
                                     resizable=False,
                                     caption='Chess',
                                     config=pyglet.gl.Config(double_buffer=True),
                                     vsync=False)
-        result = ChessPiecesReader().readFile()
+
+        result = ChessPiecesReader().readFile(path)
 
         self.wKing = result[1]
         self.bKing = result[2]

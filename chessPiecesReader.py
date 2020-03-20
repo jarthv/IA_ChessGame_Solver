@@ -7,7 +7,7 @@ from pieces.rook import Rook
 
 
 class ChessPiecesReader(object):
-    __colPositions = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
+    __colPositions = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7}
 
     def __init__(self):
         pass
@@ -67,6 +67,19 @@ class ChessPiecesReader(object):
 
 
 
-    def readFile(self,filename=""):
-        game1 = ["BTf1", "NTe7", "BAd5", "BRd6", "NRd8"]
-        return self.__formatToBoard(game1)
+    def readFile(self,filepath):
+        sourceFile = open(filepath, 'r')
+        fileText = sourceFile.read()
+        if fileText[-1] != '\n':
+            fileText += '\n'
+        tempstr = ''
+        game = []
+        for i in fileText:
+            if i != '\n':
+                tempstr += i
+            else:
+                game += [tempstr]
+                tempstr = ''
+
+        # game1 = ["BTF1", "NTE7", "BAD5", "BRD6", "NRD8"]
+        return self.__formatToBoard(game)
