@@ -1,13 +1,12 @@
-import guiChess
-from LoadFile import LoadFile
+import chessGUI
+import menuGUI
+import boardCreatorGUI
 
 
 def main():
-    loader = LoadFile()
-    loader.mainloop()
-    mygame = guiChess.Chess(loader.get_path())
-    guiChess.pyglet.clock.schedule_interval(mygame.update, 1 / 60.)
-    guiChess.pyglet.app.run()
+    mygame = chessGUI.ChessGUI()
+    chessGUI.pyglet.app.run()
+
 
 
 if __name__ == '__main__':
