@@ -171,4 +171,4 @@ class BoardCreatorGUI(pyglet.window.Window):
         self.piece_heldId = ""
         self.newPiece= False
         self.createStdPieces()
-        print(self.board)
+        # print(self.board)

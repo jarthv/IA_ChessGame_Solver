@@ -4,14 +4,14 @@ class Game():
     def __init__(self,boardStr):
         self.board=chess.Board(boardStr+" w KQkq - 0 1")
     def doAMove(self,movestr):
-        print(movestr)
+        # print(movestr)
         move=chess.Move.from_uci(movestr)
-        print(move)
+        # print(move)
         if (move in self.board.legal_moves):
             isPassant = self.board.is_en_passant(move)
             castlingSide = self.getSideofCastling(move)
             self.board.push(move)
-            print(self.board)
+            # print(self.board)
             if(isPassant):
                 return "PassantMove"
             elif(castlingSide != ""):

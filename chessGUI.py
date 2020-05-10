@@ -44,7 +44,7 @@ class ChessGUI(pyglet.window.Window):
     promotedPiece=""
 
     def __init__(self):
-        super(ChessGUI, self).__init__(900, 600,
+        super(ChessGUI, self).__init__(1000, 625,
                                        resizable=False,
                                        caption='Chess',
                                        config=pyglet.gl.Config(double_buffer=True),
@@ -121,19 +121,19 @@ class ChessGUI(pyglet.window.Window):
                 x = int(i[3]) - 1
                 p = i[0] + i[1]
                 self.board[x][y] = p
-                print(self.board_imgs)
+                # print(self.board_imgs)
 
                 self.board_imgs[x][y] = pyglet.sprite.Sprite(self.dictPieces[p])
                 if (p=="BR"):
                     self.whiteKing=self.board_imgs[x][y]
                 elif(p=="NR"):
                     self.blackKing = self.board_imgs[x][y]
-                print(x,y)
+                # print(x,y)
 
     def on_draw(self):
         self.clear()
         self.board_normal.draw()
-        print(self.selectedPiece)
+        # print(self.selectedPiece)
         if(self.game.isCheck()):
             if(self.turn=="B"):
                 self.danger.x=self.whiteKing.x
@@ -176,7 +176,7 @@ class ChessGUI(pyglet.window.Window):
         result = self.game.doAMove(fromSquare + toSquare + pieceEng)
 
         if (result != ""):
-            print(result)
+            # print(result)
             self.changePosition(xi,yi,xf,yf)
             if (result == "PassantMove"):
                 self.doPassant(xi,yi,xf,yf)
@@ -251,12 +251,4 @@ class ChessGUI(pyglet.window.Window):
                     self.pieceMove(xi, yi, xf, yf,piece)
                     self.promotion = False
                     self.promotionFinalPos = []
-
-
-
-
-
-
-
-
 
