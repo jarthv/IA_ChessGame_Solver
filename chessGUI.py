@@ -15,6 +15,9 @@ class ChessGUI(pyglet.window.Window):
     spriteimage = pyglet.resource.image('resources/spritesheet.png')
     dangerImg = pyglet.resource.image('resources/danger.png')
 
+    backgroundImg = pyglet.resource.image('resources/Background.png')
+
+
     spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
     BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, \
     WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN = range(12)
@@ -36,28 +39,32 @@ class ChessGUI(pyglet.window.Window):
     englishToSpanish = {"B": "A", "R": "T", "Q": "D", "K": "R", "P": "P", "N": "C"}
     turn="B"
     playerTurn="B"
-    ia_mode=False
+    ia_mode=True
     blackKing=None
     whiteKing=None
     promotion= False
     promotionMov=[]
     promotedPiece=""
+    movement=[]
+    animation = True
 
-    def __init__(self):
-        super(ChessGUI, self).__init__(1000, 625,
+    def __init__(self, textPositions,pwindow):
+        super(ChessGUI, self).__init__(900, 600,
                                        resizable=False,
                                        caption='Chess',
                                        config=pyglet.gl.Config(double_buffer=True),
                                        vsync=False)
+        pyglet.clock.schedule_interval(self.updatePosition, 1 / 60)
         self.board_imgs = [[None for _ in range(8)] for _ in range(8)]
         self.board = []
+        self.window=pwindow
 
         self.selectedPiece = []
         self.board_normal = pyglet.sprite.Sprite(self.chessboard)
         self.hoverSprite = pyglet.sprite.Sprite(self.hoverImg)
         self.danger = pyglet.sprite.Sprite(self.dangerImg)
         self.piece_held=None
-        self.createBoard()
+        self.createBoard(textPositions)
         self.game = Game(self.stdNotationToChess(self.board))
         self.wQueen = pyglet.sprite.Sprite(self.spritesheet[7], 131.25, 225)
         self.wRook = pyglet.sprite.Sprite(self.spritesheet[10], 218.75, 225)
@@ -67,6 +74,8 @@ class ChessGUI(pyglet.window.Window):
         self.bRook = pyglet.sprite.Sprite(self.spritesheet[4], 218.75, 225)
         self.bBishop = pyglet.sprite.Sprite(self.spritesheet[2], 306.25, 225)
         self.bKnight = pyglet.sprite.Sprite(self.spritesheet[3], 393.75, 225)
+        self.background = pyglet.sprite.Sprite(self.backgroundImg)
+
 
     def stdNotationToChess(self,boardGUI):
         count = 0
@@ -94,10 +103,25 @@ class ChessGUI(pyglet.window.Window):
             row = ""
         return result[::-1]
     def endOfTurn(self):
-        if(self.turn=="B"):
+        if (self.turn == "B"):
             self.turn = "N"
         else:
             self.turn = "B"
+
+    def moveOfAI(self):
+        var = self.game.suggestedMove()
+        print(var)
+        xi = self.colPositions[var[0]]
+        yi = int(var[1]) - 1
+        xf = self.colPositions[var[2]]
+        yf = int(var[3]) - 1
+        piece = ""
+        if(len(var) == 5):
+            piece = self.englishToSpanish[var[4]].upper()
+        self.pieceMove( xi, yi, xf, yf, piece)
+
+
+
 
     def promote(self):
         self.promoImg.blit(100, 200)
@@ -112,7 +136,7 @@ class ChessGUI(pyglet.window.Window):
             self.wBishop.draw()
             self.wKnight.draw()
 
-    def createBoard(self, textPositions=stdChesBoard ) -> list:
+    def createBoard(self, textPositions ) -> list:
 
         self.board = [["" for i in range(8)] for i in range(8)]
         if textPositions:
@@ -129,9 +153,13 @@ class ChessGUI(pyglet.window.Window):
                 elif(p=="NR"):
                     self.blackKing = self.board_imgs[x][y]
                 # print(x,y)
+    def on_close(self):
+        self.window.set_visible(True)
+        self.close()
 
     def on_draw(self):
         self.clear()
+        self.background.draw()
         self.board_normal.draw()
         # print(self.selectedPiece)
         if(self.game.isCheck()):
@@ -156,11 +184,16 @@ class ChessGUI(pyglet.window.Window):
                 if piece != self.piece_held:
                     piece.x = x * 75
                     piece.y = y * 75
-                piece.draw()
+                    piece.draw()
+        if(self.piece_held != None):
+            self.piece_held.draw()
+
         if(self.promotion):
             self.promote()
-        if(self.game.isCheckMate()):
+        if (self.game.isCheckMate()):
             print("CheckMate")
+        if(self.game.isStalemate()):
+            print("Stalemate")
 
 
 
@@ -191,6 +224,49 @@ class ChessGUI(pyglet.window.Window):
         self.board_imgs[yi][xi] = None
         self.board[yf][xf] = self.board[yi][xi]
         self.board[yi][xi] = ""
+        if self.animation :
+            self.piece_held = self.board_imgs[yf][xf]
+            xmovement = xf*75 - xi*75
+            ymovement = yf*75 - yi*75
+            self.movement =[xmovement,ymovement]
+
+
+    def updatePosition(self, dt):
+        if(len(self.movement)==2 and self.piece_held != None):
+            stepSize = 10
+            if (self.movement[1] > 0):
+                if (self.movement[1]  <= stepSize):
+                    self.piece_held.y += self.movement[1]
+                    self.movement[1]  = 0
+                else:
+                    self.piece_held.y += stepSize
+                    self.movement[1]  -= stepSize
+            if (self.movement[1]  < 0):
+                if (self.movement[1]  >= -stepSize):
+                    self.piece_held.y += self.movement[1]
+                    self.movement[1]  = 0
+                else:
+                    self.piece_held.y -= stepSize
+                    self.movement[1]  += stepSize
+            if (self.movement[0] > 0):
+                if (self.movement[0] <= stepSize):
+                    self.piece_held.x += self.movement[0]
+                    self.movement[0] = 0
+                else:
+                    self.piece_held.x += stepSize
+                    self.movement[0] -= stepSize
+            if (self.movement[0] < 0):
+                if (self.movement[0] >= -stepSize):
+                    self.piece_held.x += self.movement[0]
+                    self.movement[0] = 0
+                else:
+                    self.piece_held.x -= stepSize
+                    self.movement[0] += stepSize
+            if(self.movement[0]==0 and  self.movement[1] == 0):
+                self.piece_held = None
+                self.movement = []
+                if (self.turn != self.playerTurn and self.ia_mode and not self.game.isCheckMate() and not self.game.isStalemate()):
+                    self.moveOfAI()
 
     def doCastling(self,side,yi,yf):
         if(side=="kingside"):

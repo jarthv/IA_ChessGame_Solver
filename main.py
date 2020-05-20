@@ -4,7 +4,7 @@ import boardCreatorGUI
 
 
 def main():
-    mygame = chessGUI.ChessGUI()
+    mygame = boardCreatorGUI.BoardCreatorGUI()
     chessGUI.pyglet.app.run()
 
 

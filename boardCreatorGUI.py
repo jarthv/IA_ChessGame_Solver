@@ -2,16 +2,22 @@ import pyglet
 from pyglet.window import mouse
 import pyglet
 import itertools
+import chessGUI
 import chess
 from game import Game
+
+
 
 
 class BoardCreatorGUI(pyglet.window.Window):
 
 
     spriteimage = pyglet.resource.image('resources/spritesheet.png')
-    backgroundImg = pyglet.resource.image('MenuGUI/Background.png')
+    backgroundImg = pyglet.resource.image('resources/Background.png')
     chessboard = pyglet.resource.image('resources/chessboard.png')
+    continueBimg = pyglet.resource.image('resources/continueB.png')
+    continueNimg = pyglet.resource.image('resources/continueN.png')
+
     spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
     BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, \
     WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN = range(12)
@@ -23,7 +29,7 @@ class BoardCreatorGUI(pyglet.window.Window):
             "BC": spritesheet[WHITE_KNIGHT], "BT": spritesheet[WHITE_ROOK], "BP": spritesheet[WHITE_PAWN]}
 
     # ["BTf1", "NTe7", "BAd5", "BRd6", "NRd8"]
-    colPositions = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
+    colPositions = {0:"a", 1:"b", 2:"c", 3:"d", 4:"e", 5:"f", 6:"g", 7:"h" }
     colPositionsInv = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     stdChesBoard = ["NTh1", "NAh3", "NCh2", "NDh4", "NRh5", "NTh8", "NAh6", "NCh7",
                     "NPg1", "NPg2", "NPg3", "NPg4", "NPg5", "NPg6", "NPg7", "NPg8",
@@ -49,6 +55,8 @@ class BoardCreatorGUI(pyglet.window.Window):
     newPiece=False
     blackKingOnBoard=False
     whiteKingOnBoard = False
+
+
     quantityOfPieces = {"NR":0, "ND":0, "NA":0,"NC":0, "NT":0, "NP":0,"BR":0, "BD":0, "BA":0,"BC":0, "BT":0, "BP":0}
 
     def __init__(self):
@@ -61,11 +69,16 @@ class BoardCreatorGUI(pyglet.window.Window):
         self.board = [["" for _ in range(8)] for _ in range(8)]
         self.selector_imgs = [None for _ in range(12)]
 
+        self.continueB = pyglet.sprite.Sprite(self.continueBimg)
+        self.continueN = pyglet.sprite.Sprite(self.continueNimg)
+
         self.selectedPiece = []
         self.board_normal = pyglet.sprite.Sprite(self.chessboard)
         self.piece_held=None
         self.createStdPieces()
         self.background = pyglet.sprite.Sprite(self.backgroundImg)
+        self.mouseAxis=(0,0)
+
 
     def createStdPieces(self):
         for n in range(12):
@@ -85,6 +98,7 @@ class BoardCreatorGUI(pyglet.window.Window):
 
     def on_draw(self):
         self.clear()
+
         self.background.draw()
         self.board_normal.draw()
 
@@ -103,6 +117,21 @@ class BoardCreatorGUI(pyglet.window.Window):
         if(self.newPiece):
             self.piece_held.draw()
 
+        x = self.mouseAxis[0]
+        y = self.mouseAxis[1]
+
+        if (x <= 846.5 and x >= 635.5 and y <= 84 and y >= 42):
+            self.continueB.x = 635.5
+            self.continueB.y = 42
+            self.continueB.draw()
+        else:
+            self.continueN.x=635.5
+            self.continueN.y = 42
+            self.continueN.draw()
+
+
+#193 42
+
 
     def getGraphicPiece(self,x,y):
         if(x>600 and y>375):
@@ -120,8 +149,9 @@ class BoardCreatorGUI(pyglet.window.Window):
 
             return self.board_imgs[y//75][x//75]
 
-
-
+    def on_mouse_motion(self,x, y, dx, dy):
+        self.mouseAxis = (x,y)
+        print(self.mouseAxis)
 
     def on_mouse_press(self,x, y, button, modifiers):
         if button == mouse.LEFT :
@@ -161,9 +191,9 @@ class BoardCreatorGUI(pyglet.window.Window):
                 self.whiteKingOnBoard = True
             elif (self.piece_heldId == "NR"):
                 self.blackKingOnBoard = True
-
-
-
+        if (x <= 846.5 and x >= 635.5 and y <= 84 and y >= 42):
+            mygame = chessGUI.ChessGUI(self.boardTraduction(),self)
+            self.set_visible(False)
 
 
         self.piece_held = None
@@ -172,3 +202,13 @@ class BoardCreatorGUI(pyglet.window.Window):
         self.newPiece= False
         self.createStdPieces()
         # print(self.board)
+    def boardTraduction(self):
+        resultBoard=[]
+        for x in range(8):
+            for y in range(8):
+                if(self.board[y][x] != ""):
+                    resultBoard += [self.board[y][x] +  self.colPositions[x] + str(y+1) ]
+        print(resultBoard)
+        return resultBoard
+
+

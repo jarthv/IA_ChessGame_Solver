@@ -1,4 +1,5 @@
 import chess
+from chessAI import ChessAI
 class Game():
 
     def __init__(self,boardStr):
@@ -29,7 +30,15 @@ class Game():
         return result
     def isCheckMate(self):
         return self.board.is_checkmate()
+    def isStalemate(self):
+        return self.board.is_stalemate()
     def isCheck(self):
         return self.board.is_check()
+
+    def suggestedMove(self):
+        return ChessAI.minimaxRoot(1, self.board,True)
+    def isvalid(self):
+        return self.board.is_valid() or self.isStalemate() or self.isCheckMate()
+
 
 
