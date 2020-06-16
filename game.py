@@ -42,7 +42,7 @@ class Game():
         return self.board.is_check()
 
     def suggestedMove(self, turn):
-        return minimaxRoot(2, self.board, True)
+        return minimaxRoot(4, self.board, True)
 
     def isvalid(self):
         return self.board.is_valid() or self.isStalemate() or self.isCheckMate()
