@@ -1,0 +1,6 @@
+{
+	PosicionInicial: ['BDe3', 'BRf7', 'NRh7'],
+	DesarrolloDeLaPartida: "1...  Kh8 2. Qg5  Kh7 3. Qg6+  Kh8 4. Qg7#",
+	fecha: "15/06/2020",
+	tiempo: "0:00:13.334639" 
+}

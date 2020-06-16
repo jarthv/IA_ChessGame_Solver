@@ -56,10 +56,6 @@ class MenuGUI(pyglet.window.Window):
             self.draw(self.pvscB,266,128)
         else:
             self.draw(self.pvscN, 266, 128)
-        #368 61 pvsc
-        #295 55 exit
-        #290 54 pvsp
-
 
     def on_mouse_motion(self,x, y, dx, dy):
         self.mouseAxis = (x,y)

@@ -1,25 +1,27 @@
 import chess
-from chessAI import ChessAI
+from chessAI import minimaxRoot
 class Game():
 
     def __init__(self,boardStr):
-        self.board=chess.Board(boardStr+" w KQkq - 0 1")
+        self.board=chess.Board(boardStr)
     def doAMove(self,movestr):
         # print(movestr)
         move=chess.Move.from_uci(movestr)
-        # print(move)
+
         if (move in self.board.legal_moves):
             isPassant = self.board.is_en_passant(move)
             castlingSide = self.getSideofCastling(move)
+            sanMove=str(self.board.san(move))
             self.board.push(move)
+
             # print(self.board)
             if(isPassant):
-                return "PassantMove"
+                return ("PassantMove",sanMove)
             elif(castlingSide != ""):
-                return castlingSide
-            return "Moved"
+                return (castlingSide,sanMove)
+            return ("Moved",sanMove)
         else:
-            return ""
+            return ("","")
 
     def getSideofCastling(self,move):
         result=""
@@ -35,8 +37,11 @@ class Game():
     def isCheck(self):
         return self.board.is_check()
 
-    def suggestedMove(self):
-        return ChessAI.minimaxRoot(1, self.board,True)
+    def suggestedMove(self,turn):
+        t= False
+        if(turn=="B"):
+            t = True
+        return minimaxRoot(2, self.board,t)
     def isvalid(self):
         return self.board.is_valid() or self.isStalemate() or self.isCheckMate()
 

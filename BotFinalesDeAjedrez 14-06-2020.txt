@@ -1,0 +1,6 @@
+{
+	PosicionInicial: ['NPh2', 'NRh3', 'BRh6', 'BPh7'],
+	DesarrolloDeLaPartida: "1. h8=Q  h1=N 2. Qg7  Nf2 3. Qd7+  Ng4+ 4. Kg7  Kg2 5. Qxg4+  Kf1 6. Qf3+  Ke1 7. Kf6  Kd2 8. Ke5  Kc1 9. Kd4  Kb1 10. Kc3  Ka1 11. Kb3  Kb1 12. Qd1#",
+	fecha: "14/06/2020",
+	tiempo: "0:00:35.281844" 
+}

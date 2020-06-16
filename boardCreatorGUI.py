@@ -5,6 +5,20 @@ import itertools
 import chessGUI
 import chess
 from game import Game
+from pyglet_gui.manager import Manager
+from pyglet_gui.buttons import Button, OneTimeButton, Checkbox, GroupButton
+from pyglet_gui.containers import VerticalContainer
+from pyglet_gui.theme import Theme
+import theme
+from pyglet_gui.manager import Manager
+from pyglet_gui.constants import *
+from pyglet_gui.buttons import Button, OneTimeButton, Checkbox, GroupButton
+from pyglet_gui.gui import Label
+from pyglet_gui.containers import VerticalContainer,HorizontalContainer
+
+from pyglet_gui.theme import Theme
+from theme import getTheme
+
 
 
 
@@ -15,9 +29,7 @@ class BoardCreatorGUI(pyglet.window.Window):
     spriteimage = pyglet.resource.image('resources/spritesheet.png')
     backgroundImg = pyglet.resource.image('resources/Background.png')
     chessboard = pyglet.resource.image('resources/chessboard.png')
-    continueBimg = pyglet.resource.image('resources/continueB.png')
-    continueNimg = pyglet.resource.image('resources/continueN.png')
-
+    chessboardInv = pyglet.resource.image('resources/chessboardflipped.png')
     spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
     BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, \
     WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN = range(12)
@@ -55,29 +67,90 @@ class BoardCreatorGUI(pyglet.window.Window):
     newPiece=False
     blackKingOnBoard=False
     whiteKingOnBoard = False
+    #Flags
+    whiteKingCastling = False
+    whiteQueenCastling = False
+    blackKingCastling = False
+    blackQueenCastling = False
+    CPUPlayWhite=False
+    CPUStarts=False
+
+    chessboardflipped = False
+
+
 
 
     quantityOfPieces = {"NR":0, "ND":0, "NA":0,"NC":0, "NT":0, "NP":0,"BR":0, "BD":0, "BA":0,"BC":0, "BT":0, "BP":0}
 
-    def __init__(self):
+    def __init__(self,batch):
         super(BoardCreatorGUI, self).__init__(900, 600,
                                        resizable=False,
                                        caption='Chess',
                                        config=pyglet.gl.Config(double_buffer=True),
                                        vsync=False)
+
+
         self.board_imgs = [[None for _ in range(8)] for _ in range(8)]
         self.board = [["" for _ in range(8)] for _ in range(8)]
         self.selector_imgs = [None for _ in range(12)]
 
-        self.continueB = pyglet.sprite.Sprite(self.continueBimg)
-        self.continueN = pyglet.sprite.Sprite(self.continueNimg)
 
         self.selectedPiece = []
         self.board_normal = pyglet.sprite.Sprite(self.chessboard)
+        self.board_flipped = pyglet.sprite.Sprite(self.chessboardInv)
         self.piece_held=None
         self.createStdPieces()
         self.background = pyglet.sprite.Sprite(self.backgroundImg)
         self.mouseAxis=(0,0)
+        self.batch = batch
+        self.managerList=[]
+        self.manager()
+
+
+
+
+
+    def manager(self):
+
+        self.managerList+=[Manager(HorizontalContainer([OneTimeButton(label="Continuar",on_release=self.nextWindow)]),
+                window=self,
+                batch=self.batch,
+                theme=getTheme(),
+                anchor=ANCHOR_BOTTOM_RIGHT,
+                offset=(-80, 5),
+                is_movable=False
+                )]
+
+        self.managerList+=[Manager(VerticalContainer([Checkbox(label="El CPU Inicia        ",on_press=self.setCPUStarts,is_pressed=self.CPUStarts),
+                                   Checkbox(label="El CPU es blancas", on_press=self.setCPUPlayWhite,is_pressed=self.CPUPlayWhite),
+                                   Label(""),Label("Enroque de negras"),
+                                   Checkbox(label="Lado de la Reina ", on_press=self.setBlackQueenCastling,is_pressed=self.blackQueenCastling),
+                                   Checkbox(label="Lado del Rey       ", on_press=self.setBlackKingCastling,is_pressed=self.blackKingCastling),
+                                   Label(""),Label("Enroque de blancas"),
+                                   Checkbox(label="Lado de la Reina ",on_press=self.setWhiteQueenCastling,is_pressed=self.whiteQueenCastling),
+                                   Checkbox(label="Lado del Rey       ", on_press=self.setWhiteKingCastling,is_pressed=self.whiteKingCastling)
+                                   ]),
+                window=self,
+                batch=self.batch,
+                theme=getTheme(),
+                anchor=ANCHOR_RIGHT,
+                offset=(-50, -95),
+                is_movable=False
+                )]
+        print("manager magnament")
+
+    def setWhiteKingCastling(self,y):
+        self.whiteKingCastling=y;
+    def setWhiteQueenCastling(self,y):
+        self.whiteQueenCastling=y;
+    def setBlackKingCastling(self,y):
+        self.blackKingCastling=y;
+    def setBlackQueenCastling(self,y):
+        self.blackQueenCastling=y;
+    def setCPUPlayWhite(self,y):
+        self.CPUPlayWhite=y;
+    def setCPUStarts(self,y):
+        self.CPUStarts=y;
 
 
     def createStdPieces(self):
@@ -95,12 +168,23 @@ class BoardCreatorGUI(pyglet.window.Window):
             self.turn = "N"
         else:
             self.turn = "B"
+    def ifFlipped(self, x):
+        if(self.CPUPlayWhite):
+            return (7-x)
+        return x
+    def deleteManagers(self):
+        for x in self.managerList:
+            x.delete()
 
     def on_draw(self):
         self.clear()
 
         self.background.draw()
-        self.board_normal.draw()
+        if(self.CPUPlayWhite):
+            self.board_flipped.draw()
+        else:
+            self.board_normal.draw()
+
 
         for n in self.selector_imgs:
             if(n!= None):
@@ -111,23 +195,15 @@ class BoardCreatorGUI(pyglet.window.Window):
                 piece = self.board_imgs[y][x]
 
                 if piece != self.piece_held:
-                    piece.x = x * 75
-                    piece.y = y * 75
+                    piece.x = self.ifFlipped(x) * 75
+                    piece.y = self.ifFlipped(y) * 75
                 piece.draw()
         if(self.newPiece):
             self.piece_held.draw()
 
         x = self.mouseAxis[0]
         y = self.mouseAxis[1]
-
-        if (x <= 846.5 and x >= 635.5 and y <= 84 and y >= 42):
-            self.continueB.x = 635.5
-            self.continueB.y = 42
-            self.continueB.draw()
-        else:
-            self.continueN.x=635.5
-            self.continueN.y = 42
-            self.continueN.draw()
+        self.batch.draw()
 
 
 #193 42
@@ -145,20 +221,19 @@ class BoardCreatorGUI(pyglet.window.Window):
             return result
 
         elif(x<=600):
-            self.old_pos=(x//75,y//75)
+            self.old_pos=(self.ifFlipped(x//75),self.ifFlipped(y//75))
 
-            return self.board_imgs[y//75][x//75]
+            return self.board_imgs[self.ifFlipped(y//75)][self.ifFlipped(x//75)]
 
     def on_mouse_motion(self,x, y, dx, dy):
         self.mouseAxis = (x,y)
-        print(self.mouseAxis)
 
     def on_mouse_press(self,x, y, button, modifiers):
         if button == mouse.LEFT :
             piece = self.getGraphicPiece(x, y)
             if piece != None:
                 if(not self.newPiece):
-                    self.piece_heldId = self.board[y//75][x//75]
+                    self.piece_heldId = self.board[self.ifFlipped(y//75)][self.ifFlipped(x//75)]
                 self.piece_held = piece
 
 
@@ -168,6 +243,33 @@ class BoardCreatorGUI(pyglet.window.Window):
             self.piece_held.x = x - 32
             self.piece_held.y = y - 32
 
+    def nextWindow(self,y):
+        castling=""
+        starts = "w"
+        if(self.whiteKingCastling):
+            castling += "K"
+
+        if(self.whiteQueenCastling):
+            castling += "Q"
+
+        if (self.blackKingCastling):
+            castling += "k"
+
+        if (self.blackQueenCastling):
+            castling += "q"
+
+        if(self.CPUStarts):
+            starts="b"
+        if(self.CPUPlayWhite):
+            if(starts == "b"):
+                starts="w"
+            elif starts=="w":
+                starts = "b"
+        if(castling == ""):
+            castling="-"
+        batch = pyglet.graphics.Batch()
+        mygame = chessGUI.ChessGUI(self.boardTraduction(),castling,starts,self.CPUPlayWhite,self,batch)
+        self.set_visible(False)
 
 
     def on_mouse_release(self,x, y, button, modifiers):
@@ -180,20 +282,19 @@ class BoardCreatorGUI(pyglet.window.Window):
             self.board[self.old_pos[1]][self.old_pos[0]] = ""
 
         if self.piece_held is not None and (x<=600):
-            if (self.board[y//75][x//75] == "BR"):
+            xp = self.ifFlipped(x//75)
+            yp = self.ifFlipped(y // 75)
+            if (self.board[yp][xp] == "BR"):
                 self.whiteKingOnBoard = False
-            elif (self.board[y//75][x//75] == "NR"):
+            elif (self.board[yp][xp] == "NR"):
                 self.blackKingOnBoard = False
-            self.board_imgs[y//75][x//75] = self.piece_held
-            self.board[y//75][x//75] = self.piece_heldId
+            self.board_imgs[yp][xp] = self.piece_held
+            self.board[yp][xp] = self.piece_heldId
 
             if (self.piece_heldId == "BR"):
                 self.whiteKingOnBoard = True
             elif (self.piece_heldId == "NR"):
                 self.blackKingOnBoard = True
-        if (x <= 846.5 and x >= 635.5 and y <= 84 and y >= 42):
-            mygame = chessGUI.ChessGUI(self.boardTraduction(),self)
-            self.set_visible(False)
 
 
         self.piece_held = None
@@ -207,8 +308,7 @@ class BoardCreatorGUI(pyglet.window.Window):
         for x in range(8):
             for y in range(8):
                 if(self.board[y][x] != ""):
-                    resultBoard += [self.board[y][x] +  self.colPositions[x] + str(y+1) ]
-        print(resultBoard)
+                    resultBoard += [self.board[y][x] +self.colPositions[x] + str(y+1)]
         return resultBoard
 
 
