@@ -2,48 +2,70 @@ import chess
 
 
 def minimaxRoot(depth, board, isMaximizing):
-    posMove = board.legal_moves
+    possibleMoves = board.legal_moves
     bestMove = -9999
     bestMoveFinal = None
-    for x in posMove:
+    for x in possibleMoves:
         move = chess.Move.from_uci(str(x))
         board.push(move)
-        value = max(bestMove, minimax(depth - 1, board, -10000, 10000, not isMaximizing))
+        value = max(bestMove, minimax(
+            depth - 1, board, -10000, 10000, not isMaximizing))
         board.pop()
-        if value > bestMove:
-            print('Best score: ', str(bestMove))
-            print('Best move: ', str(bestMoveFinal))
+        if(value > bestMove):
             bestMove = value
             bestMoveFinal = move
-    return str(bestMoveFinal)
+    return bestMoveFinal
 
-def minimax(depth, board, alpha, beta, is_maximixing):
-    if depth == 0:
+
+def minimax(depth, board, alpha, beta, is_maximizing):
+    if(depth == 0):
         return -evaluation(board)
-    elif is_maximixing:
-        posMoves= board.legal_moves
+    possibleMoves = board.legal_moves
+    if(is_maximizing):
         bestMove = -9999
-        for x in posMoves:
+        for x in possibleMoves:
             move = chess.Move.from_uci(str(x))
             board.push(move)
-            bestMove = max(bestMove, minimax(depth - 1, board, alpha, beta, not is_maximixing))
+            bestMove = max(bestMove, minimax(
+                depth - 1, board, alpha, beta, not is_maximizing))
             board.pop()
             alpha = max(alpha, bestMove)
             if beta <= alpha:
                 return bestMove
         return bestMove
     else:
-        posMoves = board.legal_moves
         bestMove = 9999
-        for x in posMoves:
+        for x in possibleMoves:
             move = chess.Move.from_uci(str(x))
             board.push(move)
-            bestMove = min(bestMove, minimax(depth - 1, board, alpha, beta, not is_maximixing))
+            bestMove = min(bestMove, minimax(
+                depth - 1, board, alpha, beta, not is_maximizing))
             board.pop()
             beta = min(beta, bestMove)
-            if beta <= alpha:
+            if(beta <= alpha):
                 return bestMove
         return bestMove
+
+
+def calculateMove(board):
+    possible_moves = board.legal_moves
+    if(len(possible_moves) == 0):
+        print("No more possible moves...Game Over")
+        exit()
+    bestMove = None
+    bestValue = -9999
+    n = 0
+    for x in possible_moves:
+        move = chess.Move.from_uci(str(x))
+        board.push(move)
+        boardValue = -evaluation(board)
+        board.pop()
+        if(boardValue > bestValue):
+            bestValue = boardValue
+            bestMove = move
+
+    return bestMove
+
 
 def evaluation(board):
     i = 0
@@ -55,22 +77,27 @@ def evaluation(board):
         x = x
     while i < 63:
         i += 1
-        evaluation = evaluation + (
-            getPieceValue(str(board.piece_at(i))) if x else -getPieceValue(str(board.piece_at(i))))
+        evaluation = evaluation + \
+            (getPieceValue(str(board.piece_at(i)))
+             if x else -getPieceValue(str(board.piece_at(i))))
     return evaluation
 
+
 def getPieceValue(piece):
-    if piece == None:
+    if(piece == None):
         return 0
-    elif piece == "P" or piece == "p":
-        return 10
-    elif piece == "N" or piece == "n":
-        return 30
-    elif piece == "B" or piece == "b":
-        return 30
-    elif piece == "R" or piece == "r":
-        return 50
-    elif piece == "Q" or piece == "q":
-        return 90
-    else:
-        return 900
+    value = 0
+    if piece == "P" or piece == "p":
+        value = 10
+    if piece == "N" or piece == "n":
+        value = 30
+    if piece == "B" or piece == "b":
+        value = 30
+    if piece == "R" or piece == "r":
+        value = 50
+    if piece == "Q" or piece == "q":
+        value = 90
+    if piece == 'K' or piece == 'k':
+        value = 900
+    #value = value if (board.piece_at(place)).color else -value
+    return value

@@ -8,13 +8,12 @@ from pyglet_gui.containers import VerticalContainer
 from pyglet_gui.theme import Theme
 from theme import getTheme
 
+
 def main():
     batch = pyglet.graphics.Batch()
     mygame = boardCreatorGUI.BoardCreatorGUI(batch)
 
-
     chessGUI.pyglet.app.run()
-
 
 
 if __name__ == '__main__':
