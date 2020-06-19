@@ -18,12 +18,12 @@ Este programa permite a la computadora jugar finales de ajedrez contra otro usua
 
 # Paquetes Importanets
 
-pyhon3
+pyhon3 - https://www.python.org/downloads/
 
-pyglet
+pyglet - pip install pyglet
 
-pyglet-gui
+pyglet-gui - pip install git+https://github.com/jorgecarleitao/pyglet-gui.git
 
-python-chess
+python-chess - pip install python-chess
 
-
+easygui - pip install easygui
