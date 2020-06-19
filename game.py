@@ -1,6 +1,4 @@
-import chess
-from chessAI import minimaxRoot
-
+from chessAI import *
 
 class Game():
 
@@ -9,12 +7,12 @@ class Game():
 
     def doAMove(self, movestr):
         move = chess.Move.from_uci(movestr)
-
         if (move in self.board.legal_moves):
             isPassant = self.board.is_en_passant(move)
             castlingSide = self.getSideofCastling(move)
             sanMove = str(self.board.san(move))
             self.board.push(move)
+
 
             if(isPassant):
                 return ("PassantMove", sanMove)
@@ -41,8 +39,8 @@ class Game():
     def isCheck(self):
         return self.board.is_check()
 
-    def suggestedMove(self, turn):
-        return minimaxRoot(4, self.board, True)
+    def suggestedMove(self,starts):
+        return negamaxRoot(5,self.board,starts)
 
     def isvalid(self):
         return self.board.is_valid() or self.isStalemate() or self.isCheckMate()

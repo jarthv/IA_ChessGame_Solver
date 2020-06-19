@@ -1,103 +1,72 @@
 import chess
-
-
-def minimaxRoot(depth, board, isMaximizing):
+import chess.polyglot
+from evaluation import evaluate_board
+movehistory =[]
+starts = True
+def negamaxRoot(depth,board,pstarts):
+    global movehistory, starts
+    starts = pstarts == "w"
+    bestMove = chess.Move.null()
+    bestValue = -99999
+    alpha = -100000
+    beta = 100000
+    greaterProximity = 0
     possibleMoves = board.legal_moves
-    bestMove = -9999
-    bestMoveFinal = None
-    for x in possibleMoves:
-        move = chess.Move.from_uci(str(x))
+    for move in possibleMoves:
+
         board.push(move)
-        value = max(bestMove, minimax(
-            depth - 1, board, -10000, 10000, not isMaximizing))
-        board.pop()
-        if(value > bestMove):
-            bestMove = value
-            bestMoveFinal = move
-    return bestMoveFinal
+        result =alphabeta(-beta, -alpha, depth-1,board)
+        score = - result[0]
+        if(score == bestValue and result[1]>greaterProximity):
+            bestMove= move
+            greaterProximity=result[1]
 
-
-def minimax(depth, board, alpha, beta, is_maximizing):
-    if(depth == 0):
-        return -evaluation(board)
-    possibleMoves = board.legal_moves
-    if(is_maximizing):
-        bestMove = -9999
-        for x in possibleMoves:
-            move = chess.Move.from_uci(str(x))
-            board.push(move)
-            bestMove = max(bestMove, minimax(
-                depth - 1, board, alpha, beta, not is_maximizing))
-            board.pop()
-            alpha = max(alpha, bestMove)
-            if beta <= alpha:
-                return bestMove
-        return bestMove
-    else:
-        bestMove = 9999
-        for x in possibleMoves:
-            move = chess.Move.from_uci(str(x))
-            board.push(move)
-            bestMove = min(bestMove, minimax(
-                depth - 1, board, alpha, beta, not is_maximizing))
-            board.pop()
-            beta = min(beta, bestMove)
-            if(beta <= alpha):
-                return bestMove
-        return bestMove
-
-
-def calculateMove(board):
-    possible_moves = board.legal_moves
-    if(len(possible_moves) == 0):
-        print("No more possible moves...Game Over")
-        exit()
-    bestMove = None
-    bestValue = -9999
-    n = 0
-    for x in possible_moves:
-        move = chess.Move.from_uci(str(x))
-        board.push(move)
-        boardValue = -evaluation(board)
-        board.pop()
-        if(boardValue > bestValue):
-            bestValue = boardValue
+        if score > bestValue:
+            bestValue = score
             bestMove = move
-
+            greaterProximity=result[1]
+        score = max(score,alpha)
+        board.pop()
     return bestMove
 
 
-def evaluation(board):
-    i = 0
-    evaluation = 0
-    x = True
-    try:
-        x = bool(board.piece_at(i).color)
-    except AttributeError as e:
-        x = x
-    while i < 63:
-        i += 1
-        evaluation = evaluation + \
-            (getPieceValue(str(board.piece_at(i)))
-             if x else -getPieceValue(str(board.piece_at(i))))
-    return evaluation
 
+def alphabeta( alpha, beta, depthleft,board ):
+    bestscore = -9999
+    greaterProximity=0
+    if( depthleft == 0 ):
+        return (quiesce( alpha, beta ,board),0)
+    if(board.is_stalemate() or board.is_checkmate()):
+        return (evaluate_board(board), depthleft)
+    possibleMoves = board.legal_moves
+    for move in possibleMoves:
+        board.push(move)
+        result = alphabeta( -beta, -alpha, depthleft - 1,board )
+        score = -result[0]
+        board.pop()
+        if( score >= beta ):
+            return (score,result[1])
+        bestscore = max(bestscore,score,)
+        if(score == bestscore and result[1]>greaterProximity):
+            greaterProximity=result[1]
+        alpha = max(score,alpha)
+    return (bestscore,greaterProximity)
 
-def getPieceValue(piece):
-    if(piece == None):
-        return 0
-    value = 0
-    if piece == "P" or piece == "p":
-        value = 10
-    if piece == "N" or piece == "n":
-        value = 30
-    if piece == "B" or piece == "b":
-        value = 30
-    if piece == "R" or piece == "r":
-        value = 50
-    if piece == "Q" or piece == "q":
-        value = 90
-    if piece == 'K' or piece == 'k':
-        value = 900
-    #value = value if (board.piece_at(place)).color else -value
-    return value
+def quiesce( alpha, beta ,board):
+    stand_pat = evaluate_board(board)
+    if( stand_pat >= beta ):
+        return beta
+    if( alpha < stand_pat ):
+        alpha = stand_pat
+
+    for move in board.legal_moves:
+        if board.is_capture(move):
+            board.push(move)
+            score = -quiesce( -beta, -alpha,board )
+            board.pop()
+
+            if( score >= beta ):
+                return beta
+            if( score > alpha ):
+                alpha = score
+    return alpha

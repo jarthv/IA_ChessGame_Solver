@@ -15,6 +15,7 @@ from pyglet_gui.containers import VerticalContainer, HorizontalContainer
 from datetime import datetime
 import easygui
 
+
 #
 #
 #
@@ -26,7 +27,6 @@ import easygui
 
 
 class ChessGUI(pyglet.window.Window):
-
     chessboard = pyglet.resource.image('resources/chessboard.png')
     chessboardInv = pyglet.resource.image('resources/chessboardflipped.png')
     validImg = pyglet.resource.image('resources/validmove.png')
@@ -39,7 +39,7 @@ class ChessGUI(pyglet.window.Window):
 
     spritesheet = pyglet.image.ImageGrid(spriteimage, 2, 6)
     BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, \
-        WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN = range(12)
+    WHITE_KNIGHT, WHITE_ROOK, WHITE_PAWN = range(12)
 
     dictPieces = {"NR": spritesheet[BLACK_KING], "ND": spritesheet[BLACK_QUEEN], "NA": spritesheet[BLACK_BISHOP],
                   "NC": spritesheet[BLACK_KNIGHT], "NT": spritesheet[BLACK_ROOK], "NP": spritesheet[BLACK_PAWN],
@@ -51,10 +51,10 @@ class ChessGUI(pyglet.window.Window):
                     "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     colPositionsInv = {"a": 0, "b": 1, "c": 2,
                        "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
-    stdChesBoard = ["NTa8", "NCb8", "NAc8",  "NDd8", "NRe8", "NAf8", "NCg8", "NTh8",
-                    "NPa7", "NPb7", "NPc7", "NPd7", "NPe7", "NPf7", "NPg7",  "NPh7",
-                    "BPa2", "BPb2", "BPc2", "BPd2", "BPe2", "BPf2", "BPg2",  "BPh2",
-                    "BTa1", "BCb1", "BAc1",  "BDd1", "BRe1", "BAf1", "BCg1", "BTh1", ]
+    stdChesBoard = ["NTa8", "NCb8", "NAc8", "NDd8", "NRe8", "NAf8", "NCg8", "NTh8",
+                    "NPa7", "NPb7", "NPc7", "NPd7", "NPe7", "NPf7", "NPg7", "NPh7",
+                    "BPa2", "BPb2", "BPc2", "BPd2", "BPe2", "BPf2", "BPg2", "BPh2",
+                    "BTa1", "BCb1", "BAc1", "BDd1", "BRe1", "BAf1", "BCg1", "BTh1", ]
 
     spanishToEnglish = {"A": "B", "T": "R",
                         "D": "Q", "R": "K", "P": "P", "C": "N"}
@@ -86,7 +86,7 @@ class ChessGUI(pyglet.window.Window):
         self.castlingRigths = castlingRigths
         self.starts = starts
 
-        if(starts == "b"):
+        if (starts == "b"):
             self.turn = "N"
         else:
             self.turn = "B"
@@ -108,7 +108,7 @@ class ChessGUI(pyglet.window.Window):
         self.draws = 0
 
         self.game = Game(self.stdNotationToChess(self.board) +
-                         " "+starts+" "+castlingRigths+" - 0 1")
+                         " " + starts + " " + castlingRigths + " - 0 1")
         self.wQueen = pyglet.sprite.Sprite(self.spritesheet[7], 131.25, 225)
         self.wRook = pyglet.sprite.Sprite(self.spritesheet[10], 218.75, 225)
         self.wBishop = pyglet.sprite.Sprite(self.spritesheet[8], 306.25, 225)
@@ -119,7 +119,7 @@ class ChessGUI(pyglet.window.Window):
         self.bKnight = pyglet.sprite.Sprite(self.spritesheet[3], 393.75, 225)
         self.background = pyglet.sprite.Sprite(self.backgroundImg)
         self.document = Document(pyglet.text.decode_attributed(
-            "\n"*23), width=250, height=400)
+            "\n" * 23), width=250, height=400)
         self.manager()
         self.numero = 0
         self.announcedFinal = False
@@ -140,7 +140,8 @@ class ChessGUI(pyglet.window.Window):
                 offset=(-10, -75),
                 is_movable=False
                 )
-        Manager(HorizontalContainer([OneTimeButton(label="Guardar", on_release=self.saveGame), OneTimeButton(label="Volver", on_release=self.onclose)]),
+        Manager(HorizontalContainer([OneTimeButton(label="Guardar", on_release=self.saveGame),
+                                     OneTimeButton(label="Volver", on_release=self.onclose)]),
                 window=self,
                 batch=self.batch,
                 theme=getTheme(),
@@ -153,7 +154,7 @@ class ChessGUI(pyglet.window.Window):
     def updateDocument(self, y):
         self.numero += 1
         self.document.set_text(self.document.get_text() +
-                               "Hola Mundos "+str(self.numero)+"\n")
+                               "Hola Mundos " + str(self.numero) + "\n")
         self.popupMessage("Partida guardada correctamente")
 
     def popupMessage(self, text):
@@ -165,18 +166,18 @@ class ChessGUI(pyglet.window.Window):
 
     def saveGame(self, y):
         result = "{\n\tPosicionInicial: " + str(self.textPositions) + ",\n"
-        result += "\tDesarrolloDeLaPartida: \"" + self.annotations+"\",\n"
+        result += "\tDesarrolloDeLaPartida: \"" + self.annotations + "\",\n"
         date = datetime.now().strftime("%d/%m/%Y")
         fileDate = datetime.now().strftime("%d-%m-%Y")
-        result += "\tfecha: \""+date+"\",\n"
+        result += "\tfecha: \"" + date + "\",\n"
         strTiempo = "null"
         if not (self.instanteInicial == None or self.instanteFinal == None):
-            tiempo = (self.instanteFinal-self.instanteInicial)
+            tiempo = (self.instanteFinal - self.instanteInicial)
             strTiempo = str(tiempo)
-        result += "\ttiempo: \"" + strTiempo+"\" \n}"
+        result += "\ttiempo: \"" + strTiempo + "\" \n}"
         fileroute = easygui.filesavebox(default="BotFinalesDeAjedrez " + fileDate +
-                                        ".txt", msg="hola", title="Seleccione el destino", filetypes="txt")
-        if(fileroute != None):
+                                                ".txt", msg="hola", title="Seleccione el destino", filetypes="txt")
+        if (fileroute != None):
             f = open(fileroute, "w")
             f.write(result)
             f.close()
@@ -205,8 +206,9 @@ class ChessGUI(pyglet.window.Window):
                 count = 0
             result += row[::-1]
             row = ""
-
-        return result[::-1]
+        if (not self.CPUPlaysWhite):
+            result = result[::-1]
+        return result
 
     def endOfTurn(self):
         if (self.turn == "B"):
@@ -215,19 +217,21 @@ class ChessGUI(pyglet.window.Window):
             self.turn = "B"
 
     def moveOfAI(self):
-        var = str(self.game.suggestedMove(self.turn))
+        var = str(self.game.suggestedMove(self.starts))
         xi = self.colPositions[var[0]]
         yi = int(var[1]) - 1
         xf = self.colPositions[var[2]]
         yf = int(var[3]) - 1
         piece = ""
-        if(len(var) == 5):
+        if (len(var) == 5):
             piece = self.englishToSpanish[var[4].upper()]
+
+        xi,yi,xf,yf=self.cordinatesComplement(xi,yi,xf,yf)
         self.pieceMove(xi, yi, xf, yf, piece)
 
     def ifIsFlipped(self, x):
-        if(self.CPUPlaysWhite):
-            return (7-x)
+        if (self.CPUPlaysWhite):
+            return (7 - x)
         return x
 
     def promote(self):
@@ -248,7 +252,7 @@ class ChessGUI(pyglet.window.Window):
         self.board = [["" for i in range(8)] for i in range(8)]
         if textPositions:
             for i in textPositions:
-                y = ord(i[2])-97
+                y = ord(i[2]) - 97
                 x = int(i[3]) - 1
                 p = i[0] + i[1]
 
@@ -259,7 +263,7 @@ class ChessGUI(pyglet.window.Window):
                 if (p == "BR"):
                     self.whiteKing = self.board_imgs[self.ifIsFlipped(
                         x)][self.ifIsFlipped(y)]
-                elif(p == "NR"):
+                elif (p == "NR"):
                     self.blackKing = self.board_imgs[self.ifIsFlipped(
                         x)][self.ifIsFlipped(y)]
 
@@ -272,12 +276,12 @@ class ChessGUI(pyglet.window.Window):
     def on_draw(self):
         self.clear()
         self.background.draw()
-        if(self.CPUPlaysWhite):
+        if (self.CPUPlaysWhite):
             self.board_flipped.draw()
         else:
             self.board_normal.draw()
-        if(self.game.isCheck()):
-            if(self.turn == "B"):
+        if (self.game.isCheck()):
+            if (self.turn == "B"):
                 self.danger.x = self.whiteKing.x
                 self.danger.y = self.whiteKing.y
             else:
@@ -298,20 +302,20 @@ class ChessGUI(pyglet.window.Window):
                     piece.x = x * 75
                     piece.y = y * 75
                     piece.draw()
-        if(self.piece_held != None):
+        if (self.piece_held != None):
             self.piece_held.draw()
 
         self.announceFinal()
 
-        if(self.promotion):
+        if (self.promotion):
             self.promote()
 
-        if(self.draws < 60):
+        if (self.draws < 60):
             self.draws += 1
         self.batch.draw()
 
     def announceFinal(self):
-        if(self.instanteInicial == None):
+        if (self.instanteInicial == None):
             self.instanteInicial = datetime.now()
         if (self.game.isCheckMate() and not self.announcedFinal and self.draws == 60):
             self.announcedFinal = True
@@ -325,50 +329,59 @@ class ChessGUI(pyglet.window.Window):
             self.instanteFinal = datetime.now()
             self.popupMessage("Empate")
 
+    def setPiece(self, xi, yi, piece):
+        self.board[yi][xi] = self.board[yi][xi][0] + piece
+        ximg = self.board_imgs[yi][xi].x
+        yimg = self.board_imgs[yi][xi].y
+        self.board_imgs[yi][xi] = pyglet.sprite.Sprite(
+            self.dictPieces[self.board[yi][xi]])
+        self.board_imgs[yi][xi].x = ximg
+        self.board_imgs[yi][xi].y = yimg
+
+    def cordinatesComplement(self, xi, yi, xf, yf):
+        xi = self.ifIsFlipped(xi)
+        yi = self.ifIsFlipped(yi)
+        xf = self.ifIsFlipped(xf)
+        yf = self.ifIsFlipped(yf)
+        return xi, yi, xf, yf
+
     def pieceMove(self, xi, yi, xf, yf, piece=""):
+        pieceEng = ""
+        if (piece != ""):
+            self.setPiece(xi, yi, piece)
+            pieceEng = self.spanishToEnglish[piece].lower()
+        xi, yi, xf, yf = self.cordinatesComplement(xi, yi, xf, yf)
         fromSquare = chr(xi + 97) + str(1 + yi)
         toSquare = chr(xf + 97) + str(1 + yf)
-        pieceEng = ""
-        if(piece != ""):
-            self.board[yi][xi] = self.board[yi][xi][0] + piece
-            ximg = self.board_imgs[yi][xi].x
-            yimg = self.board_imgs[yi][xi].y
-            self.board_imgs[yi][xi] = pyglet.sprite.Sprite(
-                self.dictPieces[self.board[yi][xi]])
-            self.board_imgs[yi][xi].x = ximg
-            self.board_imgs[yi][xi].y = yimg
-
-            pieceEng = self.spanishToEnglish[piece].lower()
-
         result = self.game.doAMove(fromSquare + toSquare + pieceEng)
-
+        xi, yi, xf, yf = self.cordinatesComplement(xi, yi, xf, yf)
         if (result[0] != ""):
             self.changePosition(xi, yi, xf, yf)
             if (result[0] == "PassantMove"):
                 self.doPassant(xi, yi, xf, yf)
 
-            elif(result[0] == "kingside" or result[0] == "queenside"):
+            elif (result[0] == "kingside" or result[0] == "queenside"):
                 self.doCastling(result[0], yi, yf)
             self.anotateMove(result[1])
             self.endOfTurn()
 
     def anotateMove(self, move):
         result = ""
-        if(self.turn == "N"):
-            if(self.lineCont == 1 and self.annotations == ""):
-                result += "1...  "+move+" "
+        if (self.turn == "N"):
+            if (self.lineCont == 1 and self.annotations == ""):
+                result += "1...  " + move + " "
             else:
-                result += "  "+move+" "
+                result += "  " + move + " "
             self.lineCont += 1
 
-        elif(self.turn == "B"):
-            result += str(self.lineCont)+". " + move
+        elif (self.turn == "B"):
+            result += str(self.lineCont) + ". " + move
         self.annotations += result
 
         newLine = "\n"
-        if(self.turn == "N"):
+        if (self.turn == "N"):
             newLine = ""
-        self.document.set_text(self.document.get_text()+newLine + result)
+        self.document.set_text(self.document.get_text() + newLine + result)
 
     def changePosition(self, xi, yi, xf, yf):
         self.board_imgs[yf][xf] = self.board_imgs[yi][xi]
@@ -377,12 +390,12 @@ class ChessGUI(pyglet.window.Window):
         self.board[yi][xi] = ""
         if self.animation:
             self.piece_held = self.board_imgs[yf][xf]
-            xmovement = xf*75 - xi*75
-            ymovement = yf*75 - yi*75
+            xmovement = xf * 75 - xi * 75
+            ymovement = yf * 75 - yi * 75
             self.movement = [xmovement, ymovement]
 
     def updatePosition(self, dt):
-        if(len(self.movement) == 2 and self.piece_held != None):
+        if (len(self.movement) == 2 and self.piece_held != None):
             stepSize = 10
             if (self.movement[1] > 0):
                 if (self.movement[1] <= stepSize):
@@ -413,9 +426,10 @@ class ChessGUI(pyglet.window.Window):
                     self.piece_held.x -= stepSize
                     self.movement[0] += stepSize
 
-            if(self.movement[0] == 0 and self.movement[1] == 0):
+            if (self.movement[0] == 0 and self.movement[1] == 0):
                 self.piece_held = None
                 self.movement = []
+                self.draws=45
         if (self.turn != self.playerTurn and self.ia_mode and not self.game.isCheckMate() and not self.game.isStalemate() and self.piece_held == None and not self.inFunction and self.draws == 60):
             self.inFunction = True
             self.moveOfAI()
@@ -423,9 +437,9 @@ class ChessGUI(pyglet.window.Window):
             self.inFunction = False
 
     def doCastling(self, side, yi, yf):
-        if(side == "kingside"):
+        if (side == "kingside"):
             self.changePosition(7, yi, 5, yf)
-        if(side == "queenside"):
+        if (side == "queenside"):
             self.changePosition(0, yi, 3, yf)
 
     def doPassant(self, xi, yi, xf, yf):
@@ -438,22 +452,25 @@ class ChessGUI(pyglet.window.Window):
 
     def isPromote(self, yf):
         result = False
-        if(self.selectedPiece[0] == "BP" and self.selectedPiece[2]//75 == 6 and yf == 7):
+        if (((self.selectedPiece[0] == "BP" and not self.CPUPlaysWhite) or (
+                self.selectedPiece[0] == "NP" and self.CPUPlaysWhite)) and self.selectedPiece[2] // 75 == 6 and yf == 7):
             result = True
-        elif(self.selectedPiece[0] == "NP" and self.selectedPiece[2]//75 == 1 and yf == 0):
+        elif (((self.selectedPiece[0] == "NP" and not self.CPUPlaysWhite) or (
+                self.selectedPiece[0] == "BP" and self.CPUPlaysWhite)) and self.selectedPiece[2] // 75 == 1 and yf == 0):
             result = True
         return result
 
     def on_mouse_press(self, x, y, button, modifiers):
-        if(self.playerTurn == self.turn or not self.ia_mode) and not self.game.isCheckMate() and x <= 600 and y <= 600:
-            if(not self.promotion):
+        if (self.playerTurn == self.turn or not self.ia_mode) and not self.game.isCheckMate() and x <= 600 and y <= 600:
+            if (not self.promotion):
                 if self.selectedPiece != []:
-                    if(((self.board[y // 75][x // 75] == "")) or (self.board[y // 75][x // 75] != "") and (self.board[y // 75][x // 75][0] != self.turn)):
+                    if (((self.board[y // 75][x // 75] == "")) or (self.board[y // 75][x // 75] != "") and (
+                            self.board[y // 75][x // 75][0] != self.turn)):
                         xi = self.selectedPiece[1] // 75
                         yi = self.selectedPiece[2] // 75
                         xf = x // 75
                         yf = y // 75
-                        if(self.isPromote(yf)):
+                        if (self.isPromote(yf)):
                             self.promotion = True
                             self.promotionMov = [xi, yi, xf, yf]
                         else:
@@ -463,7 +480,7 @@ class ChessGUI(pyglet.window.Window):
 
                 if (self.board[y // 75][x // 75] != "") and (self.board[y // 75][x // 75][0] == self.turn):
                     self.selectedPiece = [
-                        self.board[y // 75][x // 75]] + [x, y]
+                                             self.board[y // 75][x // 75]] + [x, y]
             else:
                 if 225 < y < 300:
                     xi = self.promotionMov[0]

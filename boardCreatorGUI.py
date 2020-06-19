@@ -137,7 +137,6 @@ class BoardCreatorGUI(pyglet.window.Window):
                 offset=(-50, -95),
                 is_movable=False
                 )]
-        print("manager magnament")
 
     def setWhiteKingCastling(self,y):
         self.whiteKingCastling=y;
@@ -273,7 +272,7 @@ class BoardCreatorGUI(pyglet.window.Window):
 
 
     def on_mouse_release(self,x, y, button, modifiers):
-        if self.piece_held is not None and (x > 600 or not self.newPiece):
+        if self.piece_held is not None and (x > 600 or not self.newPiece) and self.old_pos != (-1,-1):
             self.board_imgs[self.old_pos[1]][self.old_pos[0]] = None
             if(self.board[self.old_pos[1]][self.old_pos[0]] == "BR"):
                 self.whiteKingOnBoard = False
@@ -302,7 +301,6 @@ class BoardCreatorGUI(pyglet.window.Window):
         self.piece_heldId = ""
         self.newPiece= False
         self.createStdPieces()
-        # print(self.board)
     def boardTraduction(self):
         resultBoard=[]
         for x in range(8):
